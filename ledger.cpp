@@ -25,8 +25,7 @@ using namespace std;
   v4.pay on eating       |->  到幾日前？ eating部分分細項
   v5.pay on recreation   |
 
-  6.id找資料          需要媽？還是要融合在2,3,4,5裡？ 好像不太需要
-  7.輸入選擇改用字串 防呆 （怕int被輸入char）
+  v7.輸入選擇改用字串 防呆 （怕int被輸入char）
   v8.日期輸入位置 一進入program -> show 2015/05/12 updated
   v8.2 如果today有值 那下次進入show就不用輸入 2015/05/13
   v9.show 一直 show
@@ -38,7 +37,7 @@ using namespace std;
   v15. total 列出total 2015/5/13
   ***16. update格式自動修正 || 確認? 2015/5/15
   ***16-2. revise 錯誤格式修正
-  ***16-3. revise 第二層back exit while（wrong）
+  ***16-3. revise 第二層back exit while（可用typechosen當參數 再跑一次revise）
   v17. TRANSPORT expenses and others expenses 2015/05/13 updated
   18. rm line?
   v19. exit everywhere 2015/05/13
@@ -50,9 +49,11 @@ using namespace std;
   v25. 換行換行換行
   v26. 第二次進入show seg 2015/05/14 修正
   v27. show date 8數字但非格式 2015/05/14 達成
-  28. update should have a confirmation
-  29. total exp 補零
-  v30. revise 超過 casesnumber 2015/05/14
+  v28. total exp 補零 2015/05/14
+  v29. revise 超過 casesnumber 2015/05/15
+  30. 初開ledger 自建檔案
+  31. update只輸入月日
+  32. revise all
 
   N.自己增加type
 
@@ -112,8 +113,19 @@ typedef struct line{
 vector<SET> S;
 string NAME;
 int TODAY, TODAYTyped;
+int systemYEAR, systemMONTH, systemDAY;
 char PorN[3] = { '-', 'N', '+'};
 char type[200][30]; //typetable of incomes and expenses
+void YearMonthDayis()
+{
+  tm *today;
+  time_t t;
+  t=time(0);
+  today=localtime(&t);
+  systemYEAR = today->tm_year+1900;
+  systemMONTH = today->tmp_mon+1;
+  systemDAY = today->tm_monday;
+}
 void whoami()
 {
   cout << "Hi, I'm Baymax, your personal money care ledger." << endl;
@@ -124,6 +136,7 @@ void whoami()
 }
 int IsAnumber(char *input)
 {
+
   int len = strlen(input);
   for(int i = 0; i < len; i++)
     if(input[i] - '0' < 0 || input[i] - '0' > 9)
@@ -164,7 +177,7 @@ int checkUpdate(char* input, int IoE)
       }
     }
   }
-  if(comnum < 3){ //連續逗號？ 2015/12/12,1,,,,1,1
+  if(comnum < 3){
     cout << "Wrong form! Please enter again." << endl;
     return -1;
   }
@@ -214,9 +227,7 @@ int checkUpdate(char* input, int IoE)
     return -1;
 
   piece = strtok(NULL, ","); // amount
-  printf("piece = %s", piece);
   if(strlen(piece) == 0){
-    cout << "hew";
     cout << "Wrong form! Please enter again." << endl;
     return -1;
   }
@@ -262,51 +273,50 @@ void in(int index)
   scanf("%s", tmp);
   while(strcmp(tmp, "end") != 0 && strcmp(tmp, "no") != 0 && strcmp(tmp, "n") != 0 && strcmp(tmp, "exit") && strcmp(tmp, "back") != 0 && strcmp(tmp, "ex") != 0 && strcmp(tmp, "revise") != 0)
   {
-    cout << "Please make sure again .. ";
-    printf("%s ? ", tmp);
-    cout << "yes, no or back ? ";
-    cin >> YorN;
-    while(YorN != "no" && YorN != "n" && YorN != "yes" && YorN != "y" && YorN != "back" && YorN != "b" && YorN != "ex" && YorN != "exit")
-    {
-      cout << "Wrong command. " << endl;
+    if(checkUpdate(tmp, 1) == 1){
+      cout << "Please make sure again .. ";
       printf("%s ? ", tmp);
+      cout << "yes, no or back ? ";
       cin >> YorN;
-    }
-    if(YorN == "no" || YorN == "n")
-    {
-      in(newNum);
-      break;
-    }
-    else if(YorN == "yes" || YorN == "y")
-    {
-      if(checkUpdate(tmp, 1) == 1)
+      while(YorN != "no" && YorN != "n" && YorN != "yes" && YorN != "y" && YorN != "back" && YorN != "b" && YorN != "ex" && YorN != "exit")
       {
-        newNum++; //index
-        fptr = fopen("data.ledger", "a");
-        sprintf(num, "%d", newNum);
-        fputs(num, fptr);
-        fputc(',',fptr);
-        fputs("1,", fptr);
-        fputs(tmp, fptr);
-        fputc('\n', fptr);
-        fclose(fptr);
-        cout << "What else ? ";
+        cout << "Wrong command. " << endl;
+        printf("%s ? ", tmp);
+        cin >> YorN;
       }
+      if(YorN == "no" || YorN == "n")
+      {
+        in(newNum);
+        break;
+      }
+      else if(YorN == "yes" || YorN == "y")
+      {
+          newNum++; //index
+          fptr = fopen("data.ledger", "a");
+          sprintf(num, "%d", newNum);
+          fputs(num, fptr);
+          fputc(',',fptr);
+          fputs("1,", fptr);
+          fputs(tmp, fptr);
+          fputc('\n', fptr);
+          fclose(fptr);
+          cout << "What else ? ";
+      }
+      else if(YorN == "back" || YorN == "b")
+        break;
+      else if(YorN == "ex")
+      {
+        ex(newNum);
+        break;
+      }
+      else if(YorN == "revise")
+      {
+        revise(-1);
+        break;
+      }
+      else if(YorN == "exit")
+        exit(0);
     }
-    else if(YorN == "back" || YorN == "b")
-      break;
-    else if(YorN == "ex")
-    {
-      ex(newNum);
-      break;
-    }
-    else if(YorN == "revise")
-    {
-      revise(-1);
-      break;
-    }
-    else if(YorN == "exit")
-      exit(0);
     scanf("%s", tmp);
   }
   if(strcmp(tmp, "ex") == 0)
@@ -343,50 +353,51 @@ void ex(int index)
   scanf("%s", tmp);
   while(strcmp(tmp, "end") != 0 && strcmp(tmp, "no") != 0 && strcmp(tmp, "n") != 0 && strcmp(tmp, "exit") && strcmp(tmp, "back") != 0 && strcmp(tmp, "in") != 0 && strcmp(tmp, "revise") != 0)
   {
-    cout << "Please make sure again .. ";
-    printf("%s ? ", tmp);
-    cout << "yes, no or back ? ";
-    cin >> YorN;
-    while(YorN != "no" && YorN != "n" && YorN != "yes" && YorN != "y" && YorN != "back" && YorN != "b" && YorN != "in" && YorN != "exit")
-    {
-      cout << "Wrong command. " << endl;
+    if(checkUpdate(tmp, -1) == 1){
+      cout << "Please make sure again .. ";
       printf("%s ? ", tmp);
+      cout << "yes, no or back ? ";
       cin >> YorN;
+      while(YorN != "no" && YorN != "n" && YorN != "yes" && YorN != "y" && YorN != "back" && YorN != "b" && YorN != "in" && YorN != "exit")
+      {
+        cout << "Wrong command. " << endl;
+        printf("%s ? ", tmp);
+        cin >> YorN;
+      }
+      if(YorN == "no" || YorN == "n")
+      {
+        ex(newNum);
+        break;
+      }
+      else if(YorN == "yes" || YorN == "y")
+      {
+          newNum++; //index
+          fptr = fopen("data.ledger", "a");
+          sprintf(num, "%d", newNum);
+          fputs(num, fptr);
+          fputc(',',fptr);
+          fputs("-1,", fptr);
+          fputs(tmp, fptr);
+          fputc('\n', fptr);
+          fclose(fptr);
+          cout << "What else ? ";
+      }
+      else if(YorN == "back" || YorN == "b")
+        break;
+      else if(YorN == "in")
+      {
+        in(newNum);
+        break;
+      }
+      else if(YorN == "revise")
+      {
+        revise(-1);
+        break;
+      }
+      else if(YorN == "exit")
+        exit(0);
     }
-    if(YorN == "no" || YorN == "n")
-    {
-      ex(newNum);
-      break;
-    }
-    else if(YorN == "yes" || YorN == "y")
-    {
-      newNum++; //index
-      fptr = fopen("data.ledger", "a");
-      sprintf(num, "%d", newNum);
-      fputs(num, fptr);
-      fputc(',',fptr);
-      fputs("-1,", fptr);
-      fputs(tmp, fptr);
-      fputc('\n', fptr);
-      fclose(fptr);
-      cout << "What else ? ";
-    }
-    else if(YorN == "back" || YorN == "b")
-      break;
-    else if(YorN == "in")
-    {
-      in(newNum);
-      break;
-    }
-    else if(YorN == "revise")
-    {
-      revise(-1);
-      break;
-    }
-    else if(YorN == "exit")
-      exit(0);
     scanf("%s", tmp);
-
   }
   if(strcmp(tmp, "revise") == 0)
     revise(-1);
@@ -485,6 +496,15 @@ void revise(int matchedNumber)
     cout << "Which piece of data needs to be revised?" << endl;
     cout << "#";
     scanf("%s", number);
+    while((IsAnumber(number) == 1 && (atoi(number) > CasesNumber || atoi(number) < 1)) || ((IsAnumber(number) == -1 && strcmp(number,"exit") != 0 && strcmp(number, "back") != 0)))
+    {
+      if(IsAnumber(number) == 1 && (atoi(number) > CasesNumber || atoi(number) < 1))
+        cout << "Wrong number!" << endl;
+      if(IsAnumber(number) == -1)
+        cout << "Please enter a number .." << endl;
+      cout << "#";
+      scanf("%s", number);
+    }
     if(strcmp(number, "exit") == 0)
       exit(0);
     if(strcmp(number, "back") == 0)
@@ -492,14 +512,8 @@ void revise(int matchedNumber)
       update();
       return;
     }
-    while(IsAnumber(number) == -1)
-    {
-      cout << "Wrong number!" << endl;
-      cout << "#";
-      scanf("%s", number);
-    }
   }
-  if(matchedNumber != -1)
+  else if(matchedNumber != -1)
     sprintf(number, "%d", matchedNumber);
   int back2number, typeChosen, changed;
   typeChosen = 0;  // for "back" functionality in choose == 3
@@ -537,13 +551,35 @@ void revise(int matchedNumber)
           cout << "Wrong choose!" << endl;
           cin >> choose;
       }
-      if(choose == "1") //date
+      if(choose == "1") //date 可以不輸入0嗎？
       {
-          printf("data = %s",LV[i].data);
+          char check[MAX];
           cout << "YYYY/MM/DD : ";
           scanf("%s", newPartOfLine);
           if(strcmp(newPartOfLine, "exit") == 0)
             exit(0);
+          strcpy(check, newPartOfLine);
+          for(unsigned int j = 0; j < strlen(check); j++)
+            if(check[j] == '/')
+              for(unsigned int k = j; k < strlen(check); k++)
+                check[k] = check[k+1];
+          while(strcmp(newPartOfLine, "back") != 0 && (IsAnumber(check) == -1 || CorrectDay(atoi(check)) == -1))
+          {
+            scanf("%s",newPartOfLine);
+            if(strcmp(newPartOfLine, "exit") == 0)
+              exit(0);
+            strcpy(check, newPartOfLine);
+            for(unsigned int j = 0; j < strlen(check); j++)
+              if(check[j] == '/')
+                for(unsigned int k = j; k < strlen(check); k++)
+                  check[k] = check[k+1];
+          }
+          if(strcmp(newPartOfLine, "back") == 0)
+          {
+            revise(matchedNumber);
+            return;
+          }
+
           cout << "Sure? ";
           cin >> YN;
           if(YN == "exit")
@@ -567,10 +603,21 @@ void revise(int matchedNumber)
           else
             cout << "Bye Byeee" << endl;
       }
-      else if(choose == "2") //amount
+      else if(choose == "2") //amount        防呆, back ,exit 已做
       {
           cout << "$: ";
           scanf("%s", newPartOfLine);
+          while((strcmp(newPartOfLine, "back") != 0 && strcmp(newPartOfLine, "exit") != 0) && IsAnumber(newPartOfLine) == -1)
+          {
+            cout << "Please enter a number." << endl;
+            scanf("%s", newPartOfLine);
+          }
+          if(strcmp(newPartOfLine, "back") == 0){
+            revise(matchedNumber);
+            return;
+          }
+          if(strcmp(newPartOfLine, "exit") == 0)
+            exit(0);
           cout << "Sure? ";
           cin >> YN;
           if(YN == "y" || YN == "yes" || YN == "Y")
@@ -598,31 +645,40 @@ void revise(int matchedNumber)
           typeChosen = 1;
           if(tmpIoE == -1)
           {
-            cout << "--------Type-Of-Expenses--------" << endl;
-            cout << "|        (1). Breakfast        |" << endl;
-            cout << "|        (2). Lunch            |" << endl;
-            cout << "|        (3). Dinner           |" << endl;
-            cout << "|        (4). Snack            |" << endl;
-            cout << "|        (5). Shopping         |" << endl;
-            cout << "|        (6). Drink            |" << endl;
-            cout << "|        (7). Transport        |" << endl;
-            cout << "|        (8). Recreation       |" << endl;
-            cout << "|        (9). Others           |" << endl;
-            cout << "| exit back 還沒做 ";
-            cout << "--------------------------------" << endl;
+            cout << "---------Type-Of-Expenses--------" << endl;
+            cout << "|        (1).  Breakfast        |" << endl;
+            cout << "|        (2).  Lunch            |" << endl;
+            cout << "|        (3).  Dinner           |" << endl;
+            cout << "|        (4).  Snack            |" << endl;
+            cout << "|        (5).  Shopping         |" << endl;
+            cout << "|        (6).  Drink            |" << endl;
+            cout << "|        (7).  Transport        |" << endl;
+            cout << "|        (8).  Recreation       |" << endl;
+            cout << "|        (9).  Others           |" << endl;
+            cout << "|        (10). Back             |" << endl;
+            cout << "---------------------------------" << endl;
             scanf("%s", newPartOfLine);
-            while(strcmp(newPartOfLine, "1") != 0 && strcmp(newPartOfLine, "back") != 0)
+            while(strcmp(newPartOfLine, "1") != 0 && strcmp(newPartOfLine, "2") != 0 && strcmp(newPartOfLine, "3") != 0 && strcmp(newPartOfLine, "4") != 0 && strcmp(newPartOfLine, "5") != 0 && strcmp(newPartOfLine, "6") != 0 && strcmp(newPartOfLine, "7") != 0 && strcmp(newPartOfLine, "8") != 0 && strcmp(newPartOfLine, "9") != 0 && strcmp(newPartOfLine, "10") != 0 && strcmp(newPartOfLine, "exit") != 0 && strcmp(newPartOfLine, "back") != 0)
             {
               cout << "Wrong choose!" << endl;
               scanf("%s", newPartOfLine);
             }
-            if(strcmp(newPartOfLine, "back") == 0)
+            if(strcmp(newPartOfLine, "back") == 0 || strcmp(newPartOfLine, "10") == 0)
+            {
+              revise(matchedNumber);
+              break;
+            }
+            if(strcmp(newPartOfLine, "exit") == 0)
             {
               revise(matchedNumber);
               break;
             }
             cout << "Sure? ";
             cin >> YN;
+            while(YN != "yes" && YN != "y" && YN != "Y")
+            {
+              cout << "";
+            }
             if(YN == "y" || YN == "yes" || YN == "Y")
             {
               strcpy(line2cut, LV[i].data);
@@ -719,12 +775,6 @@ void revise(int matchedNumber)
   delete [] tmpPS;
   if(back2number)
     revise(-1);
-  if(matchedNumber == 0)
-  {
-    cout << "Wrong number!" << endl;
-    getchar(); cout << "Press Enter .."; getchar();
-    revise(-1);
-  }
   if(changed == 1)
   {
     fptr = fopen("data.ledger", "wb");
@@ -1022,7 +1072,7 @@ void show()
   }
   fclose(fptr);
   //cout << yearMap[20151211].Amt<<endl;
-  while(choice != "1" && choice != "2" && choice != "3" && choice != "4" && choice != "5" && choice != "6" && choice != "7" && choice != "8" && choice != "9" && choice != "10" && choice != "11" && choice != "12" && choice != "13" && choice != "exit"){
+  while(choice != "1" && choice != "2" && choice != "3" && choice != "4" && choice != "5" && choice != "6" && choice != "7" && choice != "8" && choice != "9" && choice != "10" && choice != "11" && choice != "12" && choice != "13" && choice != "exit" && choice != "back"){
       cout << "Wrong command." << endl;
       cin >> choice;
   }
@@ -1153,7 +1203,7 @@ void show()
     cout << "|  (7). Back       |" << endl;
     cout << "--------------------" << endl;
     cin >> choose;
-      while(choose != "1" && choose != "2" && choose != "3" && choose != "4" && choose != "5" && choose != "6" && choose != "7" && choose != "exit")
+      while(choose != "1" && choose != "2" && choose != "3" && choose != "4" && choose != "5" && choose != "6" && choose != "7" && choose != "exit" && choose != "back")
       {
           cout << " Wrong command!" << endl;
           cin >> choose ;
@@ -1450,78 +1500,7 @@ void preshow()
 	t=time(0);
 	today=localtime(&t);
   TODAY = ((today->tm_year+1900) * 10000 + (today ->tm_mon+1) * 100 + today->tm_mday);
-  cout << "T = " << TODAY;
-  char sTODAY[12];
-  if(!TODAYTyped){
-    cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl ;
-    cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl ;
-    cout << "Today is (YYYYMMDD) ";
-    scanf("%s", sTODAY);
-    if(strcmp(sTODAY, "exit") == 0)
-      exit(0);
-    if(strcmp(sTODAY, "back") == 0)
-      return;
-    TODAY = atoi(sTODAY);
-    if((TODAY % 10000) / 100 >= 10 && TODAY % 100 >= 10)
-      cout << "Do you mean " << TODAY/10000 << "/" << (TODAY%10000)/100 << "/" << (TODAY%100) << " ? ";
-    else if((TODAY % 10000) / 100 < 10 && TODAY % 100 >= 10)
-      cout << "Do you mean " << TODAY/10000 << "/" << "0" << (TODAY%10000)/100 << "/" << (TODAY%100) << " ? ";
-    else if((TODAY % 10000) / 100 >= 10 && TODAY % 100 >= 10)
-      cout << "Do you mean " << TODAY/10000 << "/" << (TODAY%10000)/100 << "/" << "0" << (TODAY%100) << " ? ";
-    else if((TODAY % 10000) / 100 < 10 && TODAY % 100 < 10)
-      cout << "Do you mean " << TODAY/10000 << "/" << "0" << (TODAY%10000)/100 << "/" << "0" << (TODAY%100) << " ? ";
-    cin >> YorN;
-    if(YorN == "exit")
-      exit(0);
-    if(YorN == "no" || YorN == "n")
-    {
-      while(YorN != "yes" && YorN != "y" && YorN != "exit")
-      {
-        cout << "Today is (YYYYMMDD) ";
-        scanf("%s", sTODAY);
-        if(strcmp(sTODAY, "exit") == 0)
-          exit(0);
-        if(strcmp(sTODAY, "back") == 0)
-          return;
-
-        TODAY = atoi(sTODAY);
-        if((TODAY % 10000) / 100 >= 10 && TODAY % 100 >= 10)
-          cout << "Do you mean " << TODAY/10000 << "/" << (TODAY%10000)/100 << "/" << (TODAY%100) << " ? ";
-        else if((TODAY % 10000) / 100 < 10 && TODAY % 100 >= 10)
-          cout << "Do you mean " << TODAY/10000 << "/" << "0" << (TODAY%10000)/100 << "/" << (TODAY%100) << " ? ";
-        else if((TODAY % 10000) / 100 >= 10 && TODAY % 100 >= 10)
-          cout << "Do you mean " << TODAY/10000 << "/" << (TODAY%10000)/100 << "/" << "0" << (TODAY%100) << " ? ";
-        else if((TODAY % 10000) / 100 < 10 && TODAY % 100 < 10)
-          cout << "Do you mean " << TODAY/10000 << "/" << "0" << (TODAY%10000)/100 << "/" << "0" << (TODAY%100) << " ? ";
-        cin >> YorN;
-      }
-    }
-    if(YorN == "exit")
-      exit(0);
-  }
-  if(!TODAYTyped && (YorN == "yes" || YorN == "y") && (IsAnumber(sTODAY) == -1 || strlen(sTODAY) != 8 ))
-  {
-    if(IsAnumber(sTODAY) == -1)
-      cout << "Sorry, I don't think it is a right form ... " << endl;
-    else if(strlen(sTODAY) != 8)
-      cout << "8 numbers only." << endl;
-    getchar(); cout << "Press Enter .."; getchar();
-    preshow();
-    return;
-  }
-  else if(!TODAYTyped && IsAnumber(sTODAY) == 1 && CorrectDay(atoi(sTODAY)) == -1)
-  {
-    getchar(); cout << "Press Enter .."; getchar();
-    preshow();
-    return;
-  }
-  else if(!TODAYTyped && YorN == "yes" || YorN == "y"){
-    TODAYTyped = 1;
-    show();
-  }
-  else if(TODAYTyped){
-    show();
-  }
+  show();
   return;
 }
 void readme()
@@ -1538,15 +1517,12 @@ void readme()
   cout << "*        'y', 'Y', 'yes'  for a yes.                          *" << endl;
   cout << "*        'n', 'N', 'no' for a no.                             *" << endl;
   cout << "*                                                             *" << endl;
-  cout << "*   3. When (S)how, please enter the date of today first.     *" << endl;
-  cout << "*      ********* 8 numbers YYYYMMDD without '/' *********     *" << endl;
+  cout << "*   3. Type 'exit' anywhere to exit the program.              *" << endl;
   cout << "*                                                             *" << endl;
-  cout << "*   4. Type 'exit' anywhere to exit the program.              *" << endl;
-  cout << "*                                                             *" << endl;
-  cout << "*   5. If you don't know what to do, maybe you should type    *" << endl;
+  cout << "*   4. If you don't know what to do, maybe you should type    *" << endl;
   cout << "*         back                                                *" << endl;
   cout << "*                                                             *" << endl;
-  cout << "*   6. If it's buggy, I'm sorry. Please let me know,          *" << endl;
+  cout << "*   5. If it's buggy, I'm sorry. Please let me know,          *" << endl;
   cout << "*         b03902014@ntu.edu.tw                                *" << endl;
   cout << "*                                                             *" << endl;
   cout << "*                                                Morris Chang.*" << endl;
@@ -1623,7 +1599,16 @@ void defineTypeChart()
 }
 int main(void)
 {
+  FILE *fptr = fopen("data.ledger", "r");
+  if(fptr == NULL)
+  {
+    fclose(fptr);
+    fptr = fopen("data.ledger", "w");
+    cout << "hi";
+  }
+  fclose(fptr);
   defineTypeChart();
+  YearMonthDayis();
   orderme();
   return 0;
 }
