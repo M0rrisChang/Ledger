@@ -123,8 +123,8 @@ void YearMonthDayis()
   t=time(0);
   today=localtime(&t);
   systemYEAR = today->tm_year+1900;
-  systemMONTH = today->tmp_mon+1;
-  systemDAY = today->tm_monday;
+  systemMONTH = today->tm_mon+1;
+  systemDAY = today->tm_mday;
 }
 void whoami()
 {
@@ -260,6 +260,7 @@ void in(int index)
   string YorN;
   int newNum = index;
   char tmp[MAX];
+  char fulltmp[MAX];
   char num[9];
   cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl ;
   cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl ;
@@ -270,10 +271,15 @@ void in(int index)
   cout << "Keep entering data until type end" << endl;
   cout << "Please enter by the following form. (comma included)" << endl;
   cout << "20XX/YY/ZZ,Amount,Type(1 or 2),P.S" << endl;
+  char YEARinSTRING[10];
+  sprintf(YEARinSTRING, "%d", systemYEAR);
   scanf("%s", tmp);
   while(strcmp(tmp, "end") != 0 && strcmp(tmp, "no") != 0 && strcmp(tmp, "n") != 0 && strcmp(tmp, "exit") && strcmp(tmp, "back") != 0 && strcmp(tmp, "ex") != 0 && strcmp(tmp, "revise") != 0)
   {
-    if(checkUpdate(tmp, 1) == 1){
+    strcpy(fulltmp, YEARinSTRING);
+    strcat(fulltmp, "/");
+    strcat(fulltmp, tmp);
+    if(checkUpdate(fulltmp, 1) == 1){
       cout << "Please make sure again .. ";
       printf("%s ? ", tmp);
       cout << "yes, no or back ? ";
@@ -297,7 +303,7 @@ void in(int index)
           fputs(num, fptr);
           fputc(',',fptr);
           fputs("1,", fptr);
-          fputs(tmp, fptr);
+          fputs(fulltmp, fptr);
           fputc('\n', fptr);
           fclose(fptr);
           cout << "What else ? ";
@@ -333,6 +339,7 @@ void ex(int index)
   int newNum = index;
   char num[9];
   char tmp[MAX];
+  char fulltmp[MAX];
   string YorN;
   cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl ;
   { cout << "-----------Type-Table-----------" << endl;
@@ -350,10 +357,15 @@ void ex(int index)
   cout << "20XX/YY/ZZ,Amount,Type(number),P.S" << endl;
   cout << "Keep entering data until type end" << endl;
   }
+  char YEARinSTRING[10];
+  sprintf(YEARinSTRING, "%d", systemYEAR);
   scanf("%s", tmp);
   while(strcmp(tmp, "end") != 0 && strcmp(tmp, "no") != 0 && strcmp(tmp, "n") != 0 && strcmp(tmp, "exit") && strcmp(tmp, "back") != 0 && strcmp(tmp, "in") != 0 && strcmp(tmp, "revise") != 0)
   {
-    if(checkUpdate(tmp, -1) == 1){
+    strcpy(fulltmp, YEARinSTRING);
+    strcat(fulltmp, "/");
+    strcat(fulltmp, tmp);
+    if(checkUpdate(fulltmp, -1) == 1){
       cout << "Please make sure again .. ";
       printf("%s ? ", tmp);
       cout << "yes, no or back ? ";
@@ -377,7 +389,7 @@ void ex(int index)
           fputs(num, fptr);
           fputc(',',fptr);
           fputs("-1,", fptr);
-          fputs(tmp, fptr);
+          fputs(fulltmp, fptr);
           fputc('\n', fptr);
           fclose(fptr);
           cout << "What else ? ";
