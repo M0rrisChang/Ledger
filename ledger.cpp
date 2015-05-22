@@ -30,16 +30,16 @@ using namespace std;
   v8.2 如果today有值 那下次進入show就不用輸入 2015/05/13
   v9.show 一直 show
   v10.修改資料 透過id 2015/05/13
-  11.revise()第一個while可以優化 因為只是要印出東西，可以不用弄到tmpSET
-  12.優化格子
+11.revise()第一個while可以優化 因為只是要印出東西，可以不用弄到tmpSET
+12.優化格子
   v13. revise 的補零還沒做 2015/05/13
   v14. 新增README, updateManual 2015/5/13
   v15. total 列出total 2015/5/13
-  ***16. update格式自動修正 || 確認? 2015/5/15
-  ***16-2. revise 錯誤格式修正
-  ***16-3. revise 第二層back exit while（可用typechosen當參數 再跑一次revise）
+  v***16. update格式自動修正(日期沒補零可修正) || 確認 2015/5/15
+  v***16-2. revise 錯誤格式防呆確認 2015/5/16
+***16-3. revise 第二層back exit while（可用typechosen當參數 再跑一次revise）exp types :sure?後的loop還沒做
   v17. TRANSPORT expenses and others expenses 2015/05/13 updated
-  18. rm line?
+18. rm line?
   v19. exit everywhere 2015/05/13
   v20. howmanydaysago 優化 1.多少天都ok了 2.輸入非整數提醒
   v21. preshow 一開始 輸入非整數提醒 2015/05/13 updated
@@ -51,9 +51,11 @@ using namespace std;
   v27. show date 8數字但非格式 2015/05/14 達成
   v28. total exp 補零 2015/05/14
   v29. revise 超過 casesnumber 2015/05/15
-  30. 初開ledger 自建檔案
-  31. update只輸入月日
-  32. revise all
+  v30. 初開ledger 自建檔案
+  v31. update只輸入月日 剩下manual 與 info要改
+31.2 manual還沒改完
+31.2 revise 修改date是否也要只輸入月日？
+32. revise all
 
   N.自己增加type
 
@@ -191,14 +193,14 @@ int checkUpdate(char* input, int IoE)
   }
 
   piece = strtok(input2cut, "/"); //year
-  for(int i = 0; i < strlen(piece); i++)
+  for(unsigned int i = 0; i < strlen(piece); i++)
     if(piece[i] - '0' < 0 || piece[i] - '0' > 9 ){
       cout << "Wrong form! Please enter again." << endl;
       return -1;
     }
   strcpy(tmp, piece);
   piece = strtok(NULL, "/"); //month
-  for(int i = 0; i < strlen(piece); i++)
+  for(unsigned int i = 0; i < strlen(piece); i++)
     if(piece[i] - '0' < 0 || piece[i] - '0' > 9 ){
       cout << "Wrong form! Please enter again." << endl;
       return -1;
@@ -211,7 +213,7 @@ int checkUpdate(char* input, int IoE)
     strcat(tmp, piece);
 
   piece = strtok(NULL, ","); // day
-  for(int i = 0; i < strlen(piece); i++)
+  for(unsigned int i = 0; i < strlen(piece); i++)
     if(piece[i] - '0' < 0 || piece[i] - '0' > 9 ){
       cout << "Wrong form! Please enter again." << endl;
       return -1;
@@ -268,9 +270,8 @@ void in(int index)
   cout << "|          (1). Salary          |" << endl;
   cout << "|          (2). Others          |" << endl;
   cout << "---------------------------------" << endl;
-  cout << "Keep entering data until type end" << endl;
-  cout << "Please enter by the following form. (comma included)" << endl;
-  cout << "20XX/YY/ZZ,Amount,Type(1 or 2),P.S" << endl;
+  cout << "Please enter by the following form. (',' and '/' included)" << endl;
+  cout << "MM/DD,Amount,Type,P.S" << endl;
   char YEARinSTRING[10];
   sprintf(YEARinSTRING, "%d", systemYEAR);
   scanf("%s", tmp);
@@ -353,9 +354,8 @@ void ex(int index)
   cout << "|        (8). recreation       |" << endl;
   cout << "|        (9). others           |" << endl;
   cout << "--------------------------------" << endl;
-  cout << "Please enter by the following form. (comma included)" << endl;
-  cout << "20XX/YY/ZZ,Amount,Type(number),P.S" << endl;
-  cout << "Keep entering data until type end" << endl;
+  cout << "Please enter by the following form. (',' and '/' included)" << endl;
+  cout << "MM/DD,Amount,Type,P.S" << endl;
   }
   char YEARinSTRING[10];
   sprintf(YEARinSTRING, "%d", systemYEAR);
@@ -680,7 +680,7 @@ void revise(int matchedNumber)
               revise(matchedNumber);
               break;
             }
-            if(strcmp(newPartOfLine, "exit") == 0)
+            else if(strcmp(newPartOfLine, "exit") == 0)
             {
               revise(matchedNumber);
               break;
@@ -797,6 +797,192 @@ void revise(int matchedNumber)
     fclose(fptr);
   }
 }
+void remove(int matchedNumber)
+{
+  string YorN;
+  int CasesNumber = 0;
+  char number[10];  //number to be revised
+  char *piece;
+  vector<LINE> LV2cut;
+  vector<LINE> LV;
+  int tmpIoE;
+  int tmp2;
+  string choose;
+  string YN;
+  char *oldyear, *oldmonth, *oldday;
+  char *tmpPS = new char[MAX];
+  char *newLine = new char[MAX];
+  char newNumber[10];
+  cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl ;
+  cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl ;
+  FILE *fptr = fopen("data.ledger", "r");
+  char *tmp = new char[MAX];
+  cout << endl << "No." << endl;
+  while(fgets(tmp, MAX, fptr) != NULL) //showing all
+  {
+    CasesNumber++;
+    LINE tmpLINE;
+    SET tmpSET;
+
+    strcpy(tmpLINE.data, tmp);
+    tmp[strlen(tmp) - 1] = '\0';
+    //20XX/YY/ZZ,Amount,Type(number),P.S
+    piece = strtok(tmp, ",");
+    tmpSET.ID = atoi(piece);
+    //printf("ID = %d\n", tmpSET.ID);
+    piece = strtok(NULL, ",");
+    tmpSET.IoE = atoi(piece);
+    //printf("IoE = %d\n", tmpSET.IoE);
+    piece = strtok(NULL, "/");
+    tmpSET.year = atoi(piece);
+    //printf("year = %d\n", tmpSET.year);
+    piece = strtok(NULL, "/");
+    tmpSET.month = atoi(piece);
+    //printf("month = %d\n", tmpSET.month);
+    piece = strtok(NULL, ",");
+    tmpSET.day = atoi(piece);
+    //printf("day = %d\n", tmpSET.day);
+    piece = strtok(NULL, ",");
+    tmpSET.Amt = atoi(piece);
+    //printf("amt = %d\n", tmpSET.Amt);
+    piece = strtok(NULL, ",");
+    tmpSET.Type = atoi(piece);
+    //printf("Type = %d\n", tmpSET.Type);
+    piece = strtok(NULL, ",");
+    strcpy(tmpSET.PS, piece);
+    //printf("tmpSET.PS = %s\n", tmpSET.PS);
+    LV.push_back(tmpLINE);
+    LV2cut.push_back(tmpLINE);
+    if(matchedNumber == -1){
+      if(tmpSET.IoE == -1){
+        if((tmpSET).month >= 10 && (tmpSET).day >= 10)
+          printf("#%-4d |%c| %d/%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
+        else if((tmpSET).month < 10 && (tmpSET).day >= 10)
+          printf("#%-4d |%c| %d/0%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
+        else if((tmpSET).month >= 10 && (tmpSET).day < 10)
+          printf("#%-4d |%c| %d/%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
+        else if((tmpSET).month < 10 && (tmpSET).day < 10)
+          printf("#%-4d |%c| %d/0%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
+      }
+      else{
+        if((tmpSET).month >= 10 && (tmpSET).day >= 10)
+          printf("#%-4d |%c| %d/%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
+        else if((tmpSET).month < 10 && (tmpSET).day >= 10)
+          printf("#%-4d |%c| %d/0%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
+        else if((tmpSET).month >= 10 && (tmpSET).day < 10)
+          printf("#%-4d |%c| %d/%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
+        else if((tmpSET).month < 10 && (tmpSET).day < 10)
+          printf("#%-4d |%c| %d/0%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
+      }
+    }
+  }
+  delete [] tmp;
+  fclose(fptr);
+  if(matchedNumber == -1)
+  {
+    cout << "Which piece of data needs to be removed?" << endl;
+    cout << "#";
+    scanf("%s", number);
+    while((IsAnumber(number) == 1 && (atoi(number) > CasesNumber || atoi(number) < 1)) || ((IsAnumber(number) == -1 && strcmp(number,"exit") != 0 && strcmp(number, "back") != 0)))
+    {
+      if(IsAnumber(number) == 1 && (atoi(number) > CasesNumber || atoi(number) < 1))
+        cout << "Wrong number!" << endl;
+      if(IsAnumber(number) == -1)
+        cout << "Please enter a number .." << endl;
+      cout << "#";
+      scanf("%s", number);
+    }
+    if(strcmp(number, "exit") == 0)
+      exit(0);
+    if(strcmp(number, "back") == 0)
+    {
+      update();
+      return;
+    }
+  }
+  else if(matchedNumber != -1)
+    sprintf(number, "%d", matchedNumber);
+  int back2number, typeChosen, changed;
+  int deleteNUM, removingSTART = 0;
+  for(unsigned int i = 0; i < LV2cut.size(); i++)
+  {
+    changed = 0;
+    back2number = 0;
+    piece = strtok(LV2cut[i].data, ",");
+    if(removingSTART == 0)
+    {
+      if(strcmp(number, piece) == 0)
+      {
+        matchedNumber = atoi(number);
+        strcpy(newLine, LV[i].data);
+        printf("#%-4s ", piece);
+        piece = strtok(NULL, ",");   tmpIoE = atoi(piece);   printf("|%c| ", PorN[tmpIoE + 1]);
+        piece = strtok(NULL, "/");   oldyear = piece;   printf("%s/", piece);
+        piece = strtok(NULL, "/");   oldmonth = piece;  printf("%s/", piece);
+        piece = strtok(NULL, ",");   oldday = piece;    printf("%s  ", piece);
+        piece = strtok(NULL, ",");   printf("$:%s  ", piece);
+        piece = strtok(NULL, ",");   tmp2 = atoi(piece);
+        if(tmpIoE == -1)  printf("%s  ", type[tmp2 * -1 + 20]);
+        else  printf("%s  ", type[tmp2 + 20]);
+        piece = strtok(NULL, ",");   strcpy(tmpPS, piece);   printf("P.S.  %s", piece);
+
+        cout << "Remove ↑ forever?" << endl;
+        cin >> choose;
+        while(choose != "back" && choose != "exit" && choose != "no" && choose != "n" && choose != "N" && choose != "yes" && choose != "Y" && choose != "y")
+        {
+          cout << "Wrong command" << endl;
+          cin >> choose;
+        }
+        if(choose == "yes" || choose == "y" || choose == "Y")
+        {
+          deleteNUM = matchedNumber;
+          removingSTART = 1;
+        }
+        else if(choose == "no" || choose == "N" || choose == "n")
+        {
+          remove(-1);
+          break;
+        }
+        else if(choose == "exit")
+        {
+          exit(0);
+        }
+        else if(choose == "back")
+        {
+          remove(-1);
+          break;
+        }
+      }
+    }
+    else if(removingSTART == 1)
+    {
+      int tmp;
+      tmp = atoi(piece);
+      tmp--;
+      sprintf(newNumber, "%d", tmp);
+      strcpy(LV[i].data, newNumber);
+      strcat(LV[i].data, ",");
+      piece = strtok(NULL, "\n");
+      strcat(LV[i].data, piece);
+      strcat(LV[i].data, "\n");
+    }
+  }
+  delete [] tmpPS;
+  delete [] newLine;
+  fptr = fopen("data.ledger", "wb");
+  int i = 1;
+  for(vector<LINE>::iterator it = LV.begin(); it != LV.end(); it++)
+  {
+    if(i == deleteNUM)
+      fputs("", fptr);
+    else
+      fputs((*it).data, fptr);
+    i++;
+  }
+  fclose(fptr);
+
+
+}
 void UpdateManual()
 {
   cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl ;
@@ -806,12 +992,13 @@ void UpdateManual()
   cout << "*                             MUST READ                             *" << endl;
   cout << "*                                                                   *" << endl;
   cout << "*   (***) Please enter every piece data by the following form.      *" << endl;
-  cout << "*            YYYY/MM/DD,Amount,Type(a number),P.S                   *" << endl;
+  cout << "*            MM/DD,Amount,Type(a number),P.S                        *" << endl;
   cout << "*            '/', ',' and P.S are required.                         *" << endl;
   cout << "*            The numbers of types will be shown in a type-table     *" << endl;
   cout << "*            during every update.                                   *" << endl;
-  cout << "*            Example: 2099/12/31,100,1,Nothing2say                  *" << endl;
-  cout << "*   (***) in > ex ex > in  no back                                                          *" << endl;
+  cout << "*            Example: 12/31,100,1,Nothing2say                       *" << endl;
+  cout << "*            (Year would be automatically put.)                     *" << endl;
+  cout << "*   (***) in > ex ex > in  no back                                  *" << endl;
   cout << "*   (***) When Revising Date, '/' is required.                      *" << endl;
   cout << "*                                                                   *" << endl;
   cout << "*                                                                   *" << endl;
@@ -1586,7 +1773,8 @@ void orderme()
     if(order == "exit" || order == "e" || order =="E"){
       break;
     }
-
+    if(order == "r")
+      remove(-1);
     cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl ;
     cout << "----------------------" << endl;
     cout << "|      (W)hoAmI      |" << endl;
