@@ -797,7 +797,7 @@ void revise(int matchedNumber)
     fclose(fptr);
   }
 }
-void remove(int matchedNumber)
+void remove()
 {
   string YorN;
   int CasesNumber = 0;
@@ -853,67 +853,59 @@ void remove(int matchedNumber)
     //printf("tmpSET.PS = %s\n", tmpSET.PS);
     LV.push_back(tmpLINE);
     LV2cut.push_back(tmpLINE);
-    if(matchedNumber == -1){
-      if(tmpSET.IoE == -1){
-        if((tmpSET).month >= 10 && (tmpSET).day >= 10)
-          printf("#%-4d |%c| %d/%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
-        else if((tmpSET).month < 10 && (tmpSET).day >= 10)
-          printf("#%-4d |%c| %d/0%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
-        else if((tmpSET).month >= 10 && (tmpSET).day < 10)
-          printf("#%-4d |%c| %d/%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
-        else if((tmpSET).month < 10 && (tmpSET).day < 10)
-          printf("#%-4d |%c| %d/0%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
-      }
-      else{
-        if((tmpSET).month >= 10 && (tmpSET).day >= 10)
-          printf("#%-4d |%c| %d/%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
-        else if((tmpSET).month < 10 && (tmpSET).day >= 10)
-          printf("#%-4d |%c| %d/0%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
-        else if((tmpSET).month >= 10 && (tmpSET).day < 10)
-          printf("#%-4d |%c| %d/%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
-        else if((tmpSET).month < 10 && (tmpSET).day < 10)
-          printf("#%-4d |%c| %d/0%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
-      }
+    if(tmpSET.IoE == -1){
+      if((tmpSET).month >= 10 && (tmpSET).day >= 10)
+        printf("#%-4d |%c| %d/%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
+      else if((tmpSET).month < 10 && (tmpSET).day >= 10)
+        printf("#%-4d |%c| %d/0%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
+      else if((tmpSET).month >= 10 && (tmpSET).day < 10)
+        printf("#%-4d |%c| %d/%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
+      else if((tmpSET).month < 10 && (tmpSET).day < 10)
+        printf("#%-4d |%c| %d/0%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type * -1 + 20], tmpSET.PS);
     }
+    else{
+      if((tmpSET).month >= 10 && (tmpSET).day >= 10)
+        printf("#%-4d |%c| %d/%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
+      else if((tmpSET).month < 10 && (tmpSET).day >= 10)
+        printf("#%-4d |%c| %d/0%d/%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
+      else if((tmpSET).month >= 10 && (tmpSET).day < 10)
+        printf("#%-4d |%c| %d/%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
+      else if((tmpSET).month < 10 && (tmpSET).day < 10)
+        printf("#%-4d |%c| %d/0%d/0%d  $:%-5d  %-12s  P.S. %s\n", tmpSET.ID, PorN[tmpSET.IoE + 1], tmpSET.year, tmpSET.month, tmpSET.day, tmpSET.Amt, type[tmpSET.Type + 20], tmpSET.PS);
+    }
+
   }
   delete [] tmp;
   fclose(fptr);
-  if(matchedNumber == -1)
+  cout << "Which piece of data needs to be removed?" << endl;
+  cout << "#";
+  scanf("%s", number);
+  while((IsAnumber(number) == 1 && (atoi(number) > CasesNumber || atoi(number) < 1)) || ((IsAnumber(number) == -1 && strcmp(number,"exit") != 0 && strcmp(number, "back") != 0)))
   {
-    cout << "Which piece of data needs to be removed?" << endl;
+    if(IsAnumber(number) == 1 && (atoi(number) > CasesNumber || atoi(number) < 1))
+      cout << "Wrong number!" << endl;
+    if(IsAnumber(number) == -1)
+      cout << "Please enter a number .." << endl;
     cout << "#";
     scanf("%s", number);
-    while((IsAnumber(number) == 1 && (atoi(number) > CasesNumber || atoi(number) < 1)) || ((IsAnumber(number) == -1 && strcmp(number,"exit") != 0 && strcmp(number, "back") != 0)))
-    {
-      if(IsAnumber(number) == 1 && (atoi(number) > CasesNumber || atoi(number) < 1))
-        cout << "Wrong number!" << endl;
-      if(IsAnumber(number) == -1)
-        cout << "Please enter a number .." << endl;
-      cout << "#";
-      scanf("%s", number);
-    }
-    if(strcmp(number, "exit") == 0)
-      exit(0);
-    if(strcmp(number, "back") == 0)
-    {
-      update();
-      return;
-    }
   }
-  else if(matchedNumber != -1)
-    sprintf(number, "%d", matchedNumber);
-  int back2number, typeChosen, changed;
-  int deleteNUM, removingSTART = 0;
+  if(strcmp(number, "exit") == 0)
+    exit(0);
+  if(strcmp(number, "back") == 0)
+  {
+    update();
+    return;
+  }
+
+  int predeleteNUM, deleteNUM, removingSTART = 0;
   for(unsigned int i = 0; i < LV2cut.size(); i++)
   {
-    changed = 0;
-    back2number = 0;
     piece = strtok(LV2cut[i].data, ",");
     if(removingSTART == 0)
     {
       if(strcmp(number, piece) == 0)
       {
-        matchedNumber = atoi(number);
+        predeleteNUM = atoi(piece);
         strcpy(newLine, LV[i].data);
         printf("#%-4s ", piece);
         piece = strtok(NULL, ",");   tmpIoE = atoi(piece);   printf("|%c| ", PorN[tmpIoE + 1]);
@@ -935,12 +927,12 @@ void remove(int matchedNumber)
         }
         if(choose == "yes" || choose == "y" || choose == "Y")
         {
-          deleteNUM = matchedNumber;
+          deleteNUM = predeleteNUM;
           removingSTART = 1;
         }
         else if(choose == "no" || choose == "N" || choose == "n")
         {
-          remove(-1);
+          remove();
           break;
         }
         else if(choose == "exit")
@@ -949,7 +941,7 @@ void remove(int matchedNumber)
         }
         else if(choose == "back")
         {
-          remove(-1);
+          remove();
           break;
         }
       }
@@ -1024,8 +1016,9 @@ void update()
   cout << "|    (1). Incomes      |" << endl;
   cout << "|    (2). Expenses     |" << endl;
   cout << "|    (3). Revise       |" << endl;
-  cout << "|    (4). Manual       |" << endl;
-  cout << "|    (5). Back         |" << endl;
+  cout << "|    (4). Remove       |" << endl;
+  cout << "|    (5). Manual       |" << endl;
+  cout << "|    (6). Back         |" << endl;
   cout << "------------------------" << endl;
   cin >> choose;
   while(choose != "1" && choose != "in" && choose != "i" && choose != "I" && choose != "2" && choose != "e" && choose != "E" && choose != "ex" && choose != "3" && choose != "r" && choose != "R" && choose != "revise" && choose != "4" && choose != "M" && choose != "m" && choose != "manual"
@@ -1037,8 +1030,9 @@ void update()
   if(choose == "1" || choose == "in" || choose == "i" || choose == "I")          in(number);
   else if(choose == "2" || choose == "ex" || choose == "e" || choose == "E")     ex(number);
   else if(choose == "3" || choose == "revise" || choose =="r" || choose == "R")     revise(-1);
-  else if(choose == "4" || choose == "Man" || choose == "m" || choose == "M")     UpdateManual();
-  else if(choose == "5" || choose == "back" || choose == "b" || choose == "B")     return;
+  else if(choose == "5" || choose == "manual" || choose == "m" || choose == "M")     UpdateManual();
+  else if(choose == "4" || choose == "remove" )     remove();
+  else if(choose == "6" || choose == "back" || choose == "b" || choose == "B")     return;
   else if(choose == "exit")  exit(0);
   return;
 }
@@ -1773,8 +1767,6 @@ void orderme()
     if(order == "exit" || order == "e" || order =="E"){
       break;
     }
-    if(order == "r")
-      remove(-1);
     cout << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl << endl ;
     cout << "----------------------" << endl;
     cout << "|      (W)hoAmI      |" << endl;
